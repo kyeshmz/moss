@@ -1,0 +1,27 @@
+{
+  "name": "@moss/desktop",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Local-first meeting notes, powered by Hex",
+  "author": "Moss contributors",
+  "type": "module",
+  "main": "dist/main.mjs",
+  "scripts": {
+    "dev": "node scripts/build.mjs && electron .",
+    "compile": "node scripts/build.mjs",
+    "build": "node scripts/build.mjs && electron-builder --dir"
+  },
+  "devDependencies": { "electron": "44.10.1", "electron-builder": "^26.0.0" },
+  "build": {
+    "appId": "local.moss.desktop",
+    "productName": "Moss",
+    "directories": { "output": "release" },
+    "files": ["dist/**/*", "package.json"],
+    "mac": {
+      "identity": "-",
+      "hardenedRuntime": false,
+      "category": "public.app-category.productivity",
+      "extendInfo": { "NSMicrophoneUsageDescription": "Moss records your microphone only when you start a meeting recording. Speech is transcribed locally by Hex." }
+    }
+  }
+}

@@ -1,0 +1,69 @@
+name: Hex upstream
+on:
+  schedule:
+    - cron: '23 7 * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Check drift, or propose a reviewed update (requires OC_PORT_API_KEY and OC_PORT_MODEL)
+        type: choice
+        options: [check, sync]
+        default: check
+permissions:
+  contents: read
+concurrency:
+  group: hex-upstream
+  cancel-in-progress: false
+jobs:
+  check:
+    if: github.event_name != 'workflow_dispatch' || inputs.mode == 'check'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: kyeshmz/oc-port-agent@3761d5a0231c115ad640639548c266eb66fcb74c
+        with:
+          mode: check
+          publish: 'false'
+          install-opencode: 'false'
+  propose:
+    if: github.event_name == 'workflow_dispatch' && inputs.mode == 'sync'
+    runs-on: macos-15
+    timeout-minutes: 60
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check update credentials
+        env:
+          OC_PORT_API_KEY: ${{ secrets.OC_PORT_API_KEY }}
+          OC_PORT_MODEL: ${{ vars.OC_PORT_MODEL }}
+        run: |
+          test -n "$OC_PORT_API_KEY" || { echo 'Set the OC_PORT_API_KEY repository secret first.'; exit 1; }
+          test -n "$OC_PORT_MODEL" || { echo 'Set OC_PORT_MODEL to an available provider/model first.'; exit 1; }
+      - name: Prepare audio test dependency
+        run: |
+          if ! command -v ffmpeg >/dev/null; then brew install ffmpeg; fi
+      - uses: kyeshmz/oc-port-agent@3761d5a0231c115ad640639548c266eb66fcb74c
+        with:
+          mode: sync
+          publish: 'true'
+          repository: ${{ github.repository }}
+          base: main
+          api-key: ${{ secrets.OC_PORT_API_KEY }}
+          api-key-env: ${{ vars.OC_PORT_API_KEY_ENV || 'OPENCODE_API_KEY' }}
+          model: ${{ vars.OC_PORT_MODEL }}
+          opencode-version: '2.2.5'
+        env:
+          GH_TOKEN: ${{ secrets.OC_PORT_GITHUB_TOKEN || github.token }}

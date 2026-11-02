@@ -1,0 +1,32 @@
+name: Checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  typescript:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install audio test dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+      - run: npm run build
+  swift:
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift build --package-path apps/macos
+      - run: swift test --package-path apps/macos

@@ -1,0 +1,32 @@
+{
+  "name": "moss",
+  "private": true,
+  "type": "module",
+  "workspaces": ["apps/*", "packages/*"],
+  "engines": { "node": ">=22.12.0" },
+  "scripts": {
+    "dev": "concurrently -k -n service,web \"npm run dev:service\" \"npm run dev:web\"",
+    "dev:service": "npm run dev -w @moss/service",
+    "dev:web": "npm run dev -w @moss/web",
+    "dev:desktop": "npm run dev -w @moss/desktop",
+    "dev:macos": "bash apps/macos/scripts/package-app.sh && open apps/macos/dist/Moss.app",
+    "build": "npm run check && npm run build -w @moss/web",
+    "build:desktop": "npm run build -w @moss/desktop",
+    "build:macos": "swift build --package-path apps/macos",
+    "package:macos": "bash apps/macos/scripts/package-app.sh",
+    "check": "tsc --noEmit",
+    "test": "tsx --test packages/core/test/*.test.ts apps/service/test/*.test.ts && npm test -w @moss/web",
+    "test:macos": "swift test --package-path apps/macos",
+    "verify": "tsx scripts/verify.ts",
+    "doctor": "tsx scripts/doctor.ts",
+    "start": "npm run start -w @moss/service"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "concurrently": "^9.0.0",
+    "esbuild": "^0.25.0",
+    "playwright": "^1.56.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  }
+}

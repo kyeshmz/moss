@@ -1,0 +1,12 @@
+{
+  "id": "be197276-e0d0-42f7-9b58-c4d3ed567b8e",
+  "title": "Contract fixture",
+  "createdAt": "2026-11-02T12:00:00.000Z",
+  "updatedAt": "2026-11-02T12:01:00.000Z",
+  "notes": "An explicit test fixture, never seeded into user data.",
+  "revision": 2,
+  "segments": [
+    { "id": "2eea1ff5-3d5f-4261-9022-c5e9cd0634c0", "startMs": 0, "durationMs": 20000, "text": "We will review the prototype on Friday." }
+  ],
+  "summary": { "markdown": "## Next steps\n- Review the prototype.", "kind": "extractive", "sourceRevision": 2 }
+}

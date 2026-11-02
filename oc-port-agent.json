@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "upstream": { "repository": "https://github.com/anomalyco/hex.git", "ref": "dev" },
+  "baselineCommit": "2626560c8416b9a6c017b1fb5d831a88fb0de60d",
+  "selections": [{
+    "id": "hex-local-transcription",
+    "description": "Keep Moss's official Hex SDK adapter compatible with upstream model preparation, PCM WAV inference and cancellation.",
+    "upstreamPaths": ["sdk/typescript/**", "src/local_api.rs", "src/local_api/**", "src/transcription.rs", "src/transcription/**", "src/recognition.rs"],
+    "targetPaths": ["apps/service/src/hex.ts", "apps/service/src/audio-import.ts", "apps/service/test/audio-import.test.ts", "apps/service/test/hex-upstream.test.ts", "apps/service/package.json", "package-lock.json"],
+    "acceptance": [
+      "Use the published official Hex TypeScript SDK and an explicitly supplied native executable; never fabricate successful inference.",
+      "Model preparation stays explicit and inference remains local. Report missing executables and incompatible SDK contracts clearly.",
+      "Cancellation and shutdown close only the owned helper. Audio import remains bounded, private and idempotent.",
+      "Adapt relevant SDK or wire-protocol changes with regression tests; do not copy Hex desktop UI or native implementation into Moss.",
+      "All existing TypeScript and native Swift tests pass without live microphones, provider requests, or downloaded speech models."
+    ],
+    "instructions": {
+      "goal": "Propose reviewed compatibility updates to the Moss Hex boundary when selected upstream behavior changes.",
+      "adaptation": ["Preserve the shared loopback service as the only inference owner.", "Prefer updating the pinned SDK and adapter over porting native inference code."],
+      "nonGoals": ["Installing or auto-updating a user's Hex application", "Changing unrelated AI/MCP integrations", "Automatically merging or deploying changes"]
+    }
+  }],
+  "preserve": [
+    "Keep both Electron and native SwiftUI clients using the shared Moss service.",
+    "Never transmit audio or transcripts to remote providers without explicit per-action permission.",
+    "Do not change meeting storage, draft preconditions, consent, or public API shapes for an upstream implementation detail."
+  ],
+  "verification": [
+    { "command": "npm", "args": ["ci"], "timeoutSeconds": 300 },
+    { "command": "npm", "args": ["run", "check"], "timeoutSeconds": 120 },
+    { "command": "npm", "args": ["test"], "timeoutSeconds": 300 },
+    { "command": "swift", "args": ["test", "--package-path", "apps/macos"], "timeoutSeconds": 300 }
+  ],
+  "opencode": { "timeoutSeconds": 1200, "maxAttempts": 2, "steps": 100 },
+  "limits": { "maxCommits": 100, "maxContextBytes": 2000000 }
+}
